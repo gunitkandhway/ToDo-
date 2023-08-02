@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- bootstrap 5.0.2 css for design -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+
+    <!-- font awesome css for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <style>
+      body {
+        width: 100%;
+        height: 100vh;
+        background-image: url("images/To-Do.jpg");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+      }
+    </style>
+    <title>To-Do List</title>
+  </head>
+  <body>
+    <div class="col" style="display: flex; justify-content: space-between">
+      <div 
+      ></div>
+      <div class="input-group" style="width: 320px; padding: 10px">
+        <input
+          style="margin-top: 10px "
+  
+           type="search"
+          class="form-control"
+          placeholder="Search..."
+          aria-label="Recipient's username"
+          id="search"
+          aria-describedby="button-addon2"
+        />
+        <button
+          style="margin-top: 10px "
+          class="btn btn-danger"
+          type="button"
+          id="search"
+        >
+          Search
+        </button>
+      </div>
+    </div>
+   
+    <div
+      class="container-fluid bg-secondary"
+      style="max-width: 700px; border-radius: 12px; margin-top: 30px"
+    >
+    <div style="text-align: center;">
+      <h2>To-Do
+        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+        </svg>
+      </h2>
+    </div>
+      <div class="container" style="margin-top: -30px;">
+        <div class="mx-auto mt-5" style="max-width: 700px; margin-top: -10px">
+          <div class="input-group mb-3">
+            <input
+              style="margin-top: 10px"
+              type="text"
+              class="form-control"
+              placeholder="Enter Your Task"
+              aria-label="Recipient's username"
+              id="username"
+              aria-describedby="button-addon2"
+            />
+            <button
+              style="margin-top: 10px"
+              class="btn btn-danger"
+              type="button"
+              id="addUser"
+            >
+              Submit
+            </button>
+          </div>
+          <div class="filter my-3">
+            <div class="row justify-content-between">
+              <div class="col"></div>
+            </div>
+          </div>
+          <div class="display">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Your Name</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="records">
+                <tr>
+                  <th scope="row">1</th>
+                  <td>Gunit</td>
+                  <td>
+                    <i class="btn text-white fa fa-edit btn-info mx-2"></i>
+                    <i class="btn btn-danger text-white fa fa-trash"></i>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //select all tr of table
+
+      const addUserBtn = document.getElementById("addUser");
+      const btnText = addUserBtn.innerText;
+      const usernameTextField = document.getElementById("username");
+      const recordsDisplay = document.getElementById("records");
+      let userArray = [];
+      let edit_id = null;
+
+      let objStr = localStorage.getItem("users");
+
+      if (objStr != null) {
+        userArray = JSON.parse(objStr);
+      }
+
+      DisplayInfo();
+      addUserBtn.onclick = () => {
+        //get user's name from text field
+        const name = usernameTextField.value;
+        if (edit_id != null) {
+          //edit action
+          userArray.splice(edit_id, 1, {
+            name: name,
+          });
+          edit_id = null;
+        } else {
+          //insert action
+          userArray.push({
+            name: name,
+          });
+        }
+
+        SaveInfo(userArray);
+        usernameTextField.value = "";
+        addUserBtn.innerText = btnText;
+      };
+
+      // store user's name in local storage
+      function SaveInfo(userArray) {
+        let str = JSON.stringify(userArray);
+        localStorage.setItem("users", str);
+        DisplayInfo();
+      }
+
+      // display user's name
+      function DisplayInfo() {
+        let statement = "";
+        userArray.forEach((user, i) => {
+          statement += `<tr>
+           <th scope="row">${i + 1}</th>
+           <td>${user.name}</td>
+           <td><i class="btn text-white fa fa-edit btn-info mx-2" onclick='EditInfo(${i})'></i> <i class="btn btn-danger text-white fa fa-trash" onclick='DeleteInfo(${i})'></i></td>
+         </tr>`;
+        });
+        recordsDisplay.innerHTML = statement;
+      }
+
+      // edit user's name
+      function EditInfo(id) {
+        edit_id = id;
+        usernameTextField.value = userArray[id].name;
+        addUserBtn.innerText = "Save Changes";
+      }
+
+      //delete user's name
+      function DeleteInfo(id) {
+        userArray.splice(id, 1);
+        SaveInfo(userArray);
+      }
+
+      const allTr = document.querySelectorAll("#records tr");
+
+      //get text as query from search text field
+      const searchInputField = document.querySelector("#search");
+      searchInputField.addEventListener("input", function (e) {
+        const searchStr = e.target.value.toLowerCase();
+        recordsDisplay.innerHTML = "";
+        allTr.forEach((tr) => {
+          const td_in_tr = tr.querySelectorAll("td");
+          if (td_in_tr[0].innerText.toLowerCase().indexOf(searchStr) > -1) {
+            recordsDisplay.appendChild(tr);
+          }
+        });
+
+        if (recordsDisplay.innerHTML == "") {
+          recordsDisplay.innerHTML = " No Records Found";
+        }
+      });
+    </script>
+  </body>
+</html>
